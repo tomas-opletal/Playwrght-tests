@@ -22,6 +22,7 @@ class Multi_check_box:
                 self.iframe.get_by_role('checkbox', name = name).uncheck()
             else:
                 assert False, f"For writing was given wrong value {checked}, should be {True} or {False}"
+
     def check_output_list(self, target_values):
         output_name = "Checked names"
         output_text = self.iframe.get_by_text(output_name).inner_text()
@@ -61,12 +62,23 @@ def test_multi_check_box(page: Page):
                 multi_check_box.check_states(target_values)
                 multi_check_box.check_output_list(target_values)
 
-def test_t(page: Page):
+def test_radio(page: Page):
     page.goto("https://vuejs.org/examples/#form-bindings")
     iframe = page.frame_locator("iframe")
-    text1 = "Checked names"
-    text = iframe.get_by_text(text1).inner_text()
-    names_in_list = re.findall(r'\"(.*?)\"', text)
-    assert names_in_list == ['Jack'], f'{text}'
+    radio_button_one = iframe.get_by_role('radio', name = 'One')
+    radio_button_two = iframe.get_by_role('radio', name = 'Two')
+    radio_button_one.wait_for(state="visible")
+    radio_button_two.wait_for(state="visible")
+    picked_button_text = iframe.get_by_text('Picked')
+    assert (picked_button_text.text_content()).replace('Picked: ', '') == 'One'
+    radio_button_two.click()
+    assert (picked_button_text.text_content()).replace('Picked: ', '') == 'Two'
+    radio_button_one.click()
+    assert (picked_button_text.text_content()).replace('Picked: ', '') == 'One'
+
+
+
+
+
 
 
