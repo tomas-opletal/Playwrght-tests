@@ -2,7 +2,7 @@ import re
 from playwright.sync_api import Page
 import string, random
 import re
-
+####### Help functions and classes
 class Multi_check_box:
     def __init__(self, names: list[3], page: Page):
         self.names = names
@@ -30,6 +30,13 @@ class Multi_check_box:
         target_list = [b for a, b in zip(target_values, self.names) if a]
         assert names_in_list == target_list, f'Names at the output list are {names_in_list}, should be {target_values}'        
 
+def options_set_check_function(select, output, option_targets: list):
+    for option_target in option_targets:
+        select.select_option(option_target)
+        option_readed = output.text_content()
+        assert option_readed == f"Selected: {option_target}", f"Readed option was {option_readed}, should be {option_target}"
+
+######## Tests
 
 def test_has_title(page: Page):
     page.goto("https://vuejs.org/examples/#form-bindings")
@@ -75,6 +82,15 @@ def test_radio(page: Page):
     assert (picked_button_text.text_content()).replace('Picked: ', '') == 'Two'
     radio_button_one.click()
     assert (picked_button_text.text_content()).replace('Picked: ', '') == 'One'
+    
+def test_select(page: Page):
+    page.goto("https://vuejs.org/examples/#form-bindings")
+    iframe = page.frame_locator("iframe")
+    select = iframe.locator('select').nth(0)
+    output = iframe.get_by_text(re.compile(r'Selected: [ABC]'))
+    options_list = ['A', 'B', 'C']
+    options_set_check_function(select, output, options_list)
+
 
 
 
