@@ -30,6 +30,22 @@ class Multi_check_box:
         target_list = [b for a, b in zip(target_values, self.names) if a]
         assert names_in_list == target_list, f'Names at the output list are {names_in_list}, should be {target_values}'        
 
+class Multi_select:
+    def __init__(self, select_element, output_element) -> None:
+        self.select_element = select_element
+        self.output_element = output_element 
+
+    def set_options(self, target_options: list):
+        self.select_element.select_option(target_options)
+
+    def check_options(self, target_options: list):
+        readed_options = self.output_element.inner_text().replace("Selected: ", "")
+        cleaned_str = readed_options.replace('[', '').replace(']', '').replace('"', '').strip() # Needed because readed string was in format '[ "A", "B", "C" ]'
+        readed_options_cleaned = [letter.strip() for letter in cleaned_str.split(',')]
+        if readed_options_cleaned == ['']:
+            readed_options_cleaned = []
+        assert readed_options_cleaned == target_options, f"Readed options was {readed_options_cleaned}, should be {target_options}"
+
 def options_set_check_function(select, output, option_targets: list):
     for option_target in option_targets:
         select.select_option(option_target)
@@ -90,6 +106,22 @@ def test_select(page: Page):
     output = iframe.get_by_text(re.compile(r'Selected: [ABC]'))
     options_list = ['A', 'B', 'C']
     options_set_check_function(select, output, options_list)
+
+def test_multi_select(page: Page):
+    page.goto("https://vuejs.org/examples/#form-bindings")
+    iframe = page.frame_locator("iframe")
+    select_element = iframe.locator('select').nth(1)
+    output_element = iframe.locator('p', has_text= 'Selected: [')
+    multi_select = Multi_select(select_element, output_element)
+    option_list = ["A", "B", "C"]
+    for i in range(2):
+        for j in range(2):
+            for k in range(2):
+                option_bool_list = [bool(i), bool(j), bool(k)]
+                target_list = [b for a, b in zip(option_bool_list, option_list) if a]
+                multi_select.set_options(target_list)
+                multi_select.check_options(target_list)
+
 
 
 
