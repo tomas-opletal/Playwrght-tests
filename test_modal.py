@@ -11,12 +11,12 @@ import pytest
 
 @pytest.fixture(scope="function")
 def iframe(page: Page):
-    """Fixture to set up and navigate to the form bindings example page"""
+    """Fixture to set up and navigate to the modal example page"""
     page.goto("https://vuejs.org/examples/#modal")
     return page.frame_locator("iframe")
 
 def test_modal(iframe):
-    """Basic test for testing name of page"""
+    """Basic test for testing of modal funcionality"""
     button_show_modal = iframe.get_by_role('button', name = 'Show Modal')
     assert iframe.locator('div.modal-mask').is_hidden() == True
     button_show_modal.click()
