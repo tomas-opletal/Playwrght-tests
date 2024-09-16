@@ -5,6 +5,7 @@ import re
 from playwright.sync_api import Page
 import string, random
 import re
+import pytest
 
 ####### Help functions and classes
 class Multi_check_box:
@@ -67,16 +68,22 @@ def options_set_check_function(select, output_element, option_targets: list):
         option_readed = output_element.text_content()
         assert option_readed == f"Selected: {option_target}", f"Readed option was {option_readed}, should be {option_target}"
 
+######## Fixtures
+
+@pytest.fixture(scope="function")
+def page(page: Page):
+    """Fixture to set up and navigate to the form bindings example page"""
+    page.goto("https://vuejs.org/examples/#form-bindings")
+    return page
+
 ######## Tests
 
-def test_has_title(page: Page):
+def test_has_title(page):
     """Basic test for testing name of page"""
-    page.goto("https://vuejs.org/examples/#form-bindings")
     assert page.title() == "Examples | Vue.js"
 
-def test_text_box(page: Page):
+def test_text_box(page):
     """Test which is testing writting text to the text box and checking if this value is also set at output box"""
-    page.goto("https://vuejs.org/examples/#form-bindings")
     test_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=20))
     text_input = page.frame_locator("iframe").get_by_role("textbox")
     default_output_target = "Edit me"
@@ -87,17 +94,15 @@ def test_text_box(page: Page):
     readed_output_element = text_input.input_value()
     assert readed_output_element == (f"{test_string}"), f"Readed output was {readed_output_element}, should be {test_string}" 
 
-def test_check_box(page: Page):
+def test_check_box(page):
     """Test which s testing check box element"""
-    page.goto("https://vuejs.org/examples/#form-bindings")
     check_box_element = page.frame_locator("iframe").get_by_role("checkbox", name= "Checked:")
     assert check_box_element.is_checked() == True, f"Checkbox is {check_box_element.is_checked()}, should be True"
     check_box_element.uncheck()
     assert check_box_element.is_checked() == False, f"Checkbox is {check_box_element.is_checked()}, should be False"
 
-def test_multi_check_box(page: Page):
+def test_multi_check_box(page):
     """"Test which is testing multi check box elements. Created class which encapsulate the funcionality."""
-    page.goto("https://vuejs.org/examples/#form-bindings")
     items_names = ['Jack', 'John', 'Mike']  
     multi_check_box = Multi_check_box(items_names, page)
     # Logic which is testing all of the possible combination of items_names
@@ -109,9 +114,8 @@ def test_multi_check_box(page: Page):
                 multi_check_box.check_states(target_values)
                 multi_check_box.check_output_list(target_values)
 
-def test_radio(page: Page):
+def test_radio(page):
     """Test for testing radio element"""
-    page.goto("https://vuejs.org/examples/#form-bindings")
     iframe = page.frame_locator("iframe")
     radio_element_one = iframe.get_by_role('radio', name = 'One')
     radio_element_two = iframe.get_by_role('radio', name = 'Two')
@@ -124,18 +128,16 @@ def test_radio(page: Page):
     radio_element_one.click()
     assert (picked_button_text.text_content()).replace('Picked: ', '') == 'One' # Testing of clicking on the first button
     
-def test_select(page: Page):
+def test_select(page):
     """Test for testing select element"""
-    page.goto("https://vuejs.org/examples/#form-bindings")
     iframe = page.frame_locator("iframe")
     select_element = iframe.locator('select').nth(0)
     output_element = iframe.get_by_text(re.compile(r'Selected: [ABC]'))
     options_list = ['A', 'B', 'C']
     options_set_check_function(select_element, output_element, options_list)
 
-def test_multi_select(page: Page):
+def test_multi_select(page):
     """Test for testing multi select element"""
-    page.goto("https://vuejs.org/examples/#form-bindings")
     iframe = page.frame_locator("iframe")
     select_element = iframe.locator('select').nth(1)
     output_element = iframe.locator('p', has_text= 'Selected: [')
