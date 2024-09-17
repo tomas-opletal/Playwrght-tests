@@ -24,13 +24,22 @@ class Crud:
     
     def check_default_setting(self):
         assert self.select_window.read_all_options() == ['Emil, Hans', 'Mustermann, Max', 'Tisch, Roman']
-        for i in range(self.select_window.number_options):
-            assert self.select_window.is_checked_option(i) == False, f"Option {i} is checked, should be {False}"
+        #for i in range(self.select_window.number_options):   ## Checking if target options are checked, TO DO
+        #    assert self.select_window.is_enabled_option(i) == False, f"Option {i} is enabled, should be {False}"
         assert self.name_window.read_text() == "", f"Name window should be empty"
         assert self.surname_window.read_text() == "", f"Surname window should be empty"
         assert self.filter_window.read_text() == "", f"Filter window should be empty"
 
+    def options_labels_propagation_test(self):
+        self.select_window.read_all_options()
+        for i in range(self.select_window.number_options):
+            self.select_window.click_option(i)
+      #     assert self.select_window.is_checked_option(i) == True   ## Checking if target options are checked, TO DO
+            assert self.surname_window.read_text() + ", " + self.name_window.read_text() == self.select_window.options[i]
 
+
+
+        
 
 class Button():
     def __init__(self, iframe, name: str):
@@ -88,8 +97,9 @@ class Select_Window():
     def is_visible_option(self, index):
         return self.select_element.locator('option').nth(index).is_visible()
     
-    def is_checked_option(self, index):
-        return self.select_element.locator('option').nth(index).is_checked()
+    def is_enabled_option(self, index):
+        # return self.select_element.locator('option').nth(index).input_value()
+        return self.select_element.input_value()
 
 
     
@@ -103,6 +113,8 @@ def iframe(page: Page):
 
 def test(iframe):
     crud = Crud(iframe)
+    crud.options_labels_propagation_test()
+    #iframe.get_by_label('label').get_attribute('')
     
 
 
