@@ -19,6 +19,7 @@ class Crud:
         self.name_window = Label_Window(self.iframe, 'Name')
         self.surname_window = Label_Window(self.iframe, 'Surname')
         self.filter_window = Filter_Window(self.iframe, 'Filter prefix')
+        self.output_window = Output_Window(self.iframe)
 
 class Button():
     def __init__(self, iframe, name: str):
@@ -50,6 +51,14 @@ class Filter_Window():
     def read_text(self):
         return self.iframe.get_by_placeholder('Filter prefix').inner_text()
 
+class Output_Window():
+    def __init__(self, iframe):
+        self.select_element = iframe.locator('select')
+        self.options = []
+
+    def read_all_options(self):
+        self.options = self.select_element.locator('option').all_inner_texts()
+        return self.options
     
 
 @pytest.fixture(scope="function")
@@ -60,5 +69,5 @@ def iframe(page: Page):
 
 def test(iframe, name_to_write):
     crud = Crud(iframe)
-    iframe.get_by_placeholder('Filter prefix').inner_text()
+    iframe.get_by_placeholder('Filter prefix').all_inner_texts()
     assert 1
