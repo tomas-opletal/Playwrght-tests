@@ -12,14 +12,14 @@ import pytest
 
 class Crud:
     def __init__(self, iframe):
-        self.iframe = iframe
-        self.button_Create = Button(self.iframe, 'Create')
-        self.button_Update = Button(self.iframe, 'Update')
-        self.button_Delete = Button(self.iframe, 'Delete')
-        self.name_window = Label_Window(self.iframe, 'Name')
-        self.surname_window = Label_Window(self.iframe, 'Surname')
-        self.filter_window = Filter_Window(self.iframe, 'Filter prefix')
-        self.output_window = Output_Window(self.iframe)
+        self._iframe = iframe
+        self.button_create = Button(self._iframe, 'Create')
+        self.button_update = Button(self._iframe, 'Update')
+        self.button_delete = Button(self._iframe, 'Delete')
+        self.name_window = Label_Window(self._iframe, 'Name', 0)
+        self.surname_window = Label_Window(self._iframe, 'Surname', 1)
+        self.filter_window = Filter_Window(self._iframe, 'Filter prefix')
+        self.select_window = Select_Window(self._iframe)
 
 class Button():
     def __init__(self, iframe, name: str):
@@ -27,15 +27,22 @@ class Button():
         self.name = name
 
     def click(self):
-        iframe.get_by_role('button', name = self.name).click()
+        self.iframe.get_by_role('button', name = self.name).click()
 
 class Label_Window():
-    def __init__(self, iframe, text: str):
+    def __init__(self, iframe, text: str, nth):
         self.iframe = iframe
         self.name = text + ':'
+        self.element = self.iframe.locator('label').nth(nth).locator('input')
     
     def read_text(self):
-        return iframe.locator('label', has_text = self.name).locator('input')
+        return self.element.input_value()
+    
+    def click(self):
+        self.element.click()
+
+    def write(self, text_to_write):
+        self.element.fill(text_to_write)
 
 class Filter_Window():
     def __init__(self, iframe, text: str):
@@ -49,17 +56,29 @@ class Filter_Window():
         self.iframe.get_by_placeholder('Filter prefix').fill(text)
     
     def read_text(self):
-        return self.iframe.get_by_placeholder('Filter prefix').inner_text()
+        return self.iframe.get_by_placeholder('Filter prefix').input_value()
 
-class Output_Window():
+class Select_Window():
     def __init__(self, iframe):
         self.select_element = iframe.locator('select')
-        self.options = []
+        self.options = ['Emil, Hans', 'Mustermann, Max', 'Tisch, Roman']
+        self.number_options = len(self.options)
+        self.selected = None
 
     def read_all_options(self):
         self.options = self.select_element.locator('option').all_inner_texts()
+        self.number_options = len(self.options)
         return self.options
     
+    def click_option(self, index):
+        self.select_element.locator('option').nth(index).click()
+        self.selected = index
+
+    def is_visible_option(self, index):
+        return self.select_element.locator('option').nth(index).is_visible()
+
+    
+
 
 @pytest.fixture(scope="function")
 def iframe(page: Page):
@@ -67,7 +86,11 @@ def iframe(page: Page):
     page.goto("https://vuejs.org/examples/#crud")
     return page.frame_locator("iframe")
 
-def test(iframe, name_to_write):
+def test(iframe):
     crud = Crud(iframe)
-    iframe.get_by_placeholder('Filter prefix').all_inner_texts()
-    assert 1
+    assert crud.select_window.is_visible_option(3) == False
+
+
+
+
+
