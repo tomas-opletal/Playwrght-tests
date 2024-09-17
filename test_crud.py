@@ -18,6 +18,7 @@ class Crud:
         self.button_Delete = Button(self.iframe, 'Delete')
         self.name_window = Label_Window(self.iframe, 'Name')
         self.surname_window = Label_Window(self.iframe, 'Surname')
+        self.filter_window = Filter_Window(self.iframe, 'Filter prefix')
 
 class Button():
     def __init__(self, iframe, name: str):
@@ -35,6 +36,21 @@ class Label_Window():
     def read_text(self):
         return iframe.locator('label', has_text = self.name).locator('input')
 
+class Filter_Window():
+    def __init__(self, iframe, text: str):
+        self.iframe = iframe
+        self.name = text
+    
+    def click(self):
+        self.iframe.get_by_placeholder(self.name).click()
+        
+    def write_text(self, text: str):
+        self.iframe.get_by_placeholder('Filter prefix').fill(text)
+    
+    def read_text(self):
+        self.iframe.get_by_placeholder('Filter prefix').inner_text()
+
+    
 
 @pytest.fixture(scope="function")
 def iframe(page: Page):
@@ -42,7 +58,7 @@ def iframe(page: Page):
     page.goto("https://vuejs.org/examples/#crud")
     return page.frame_locator("iframe")
 
-def test(iframe):
+def test(iframe, name_to_write):
     crud = Crud(iframe)
-    iframe.get_by_label()
+    iframe.get_by_placeholder('Filter prefix').inner_text()
     assert 1
