@@ -48,7 +48,7 @@ class Filter_Window():
         self.iframe.get_by_placeholder('Filter prefix').fill(text)
     
     def read_text(self):
-        self.iframe.get_by_placeholder('Filter prefix').inner_text()
+        return self.iframe.get_by_placeholder('Filter prefix').inner_text()
 
     
 
