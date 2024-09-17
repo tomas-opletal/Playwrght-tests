@@ -7,8 +7,14 @@ import string, random
 import re
 import pytest
 
+names_list = [
+    {"first_name": "John", "last_name": "Smith"},
+    {"first_name": "Emma", "last_name": "Johnson"},
+    {"first_name": "Michael", "last_name": "Brown"},
+    {"first_name": "Olivia", "last_name": "Williams"},
+    {"first_name": "David", "last_name": "Jones"},
+]
 
-######## Fixtures
 
 class Crud:
     def __init__(self, iframe):
@@ -37,6 +43,14 @@ class Crud:
       #     assert self.select_window.is_checked_option(i) == True   ## Checking if target options are checked, TO DO
             assert self.surname_window.read_text() + ", " + self.name_window.read_text() == self.select_window.options[i]
 
+    def add_option_to_select(self, names_list):
+        for name in names_list:
+            self.name_window.click
+            self.name_window.write(name['first_name'])
+            self.button_create.click()
+            self.name_window.click
+            self.surname_window.write(name['last_name'])
+            self.button_create.click()
 
 
         
@@ -113,9 +127,10 @@ def iframe(page: Page):
 
 def test(iframe):
     crud = Crud(iframe)
-    crud.options_labels_propagation_test()
+    #crud.options_labels_propagation_test()
     #iframe.get_by_label('label').get_attribute('')
-    
+    crud.add_option_to_select(names_list)
+    crud.options_labels_propagation_test()
 
 
 
