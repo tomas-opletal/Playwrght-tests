@@ -20,6 +20,17 @@ class Crud:
         self.surname_window = Label_Window(self._iframe, 'Surname', 1)
         self.filter_window = Filter_Window(self._iframe, 'Filter prefix')
         self.select_window = Select_Window(self._iframe)
+        self.check_default_setting()
+    
+    def check_default_setting(self):
+        assert self.select_window.read_all_options() == ['Emil, Hans', 'Mustermann, Max', 'Tisch, Roman']
+        for i in range(self.select_window.number_options):
+            assert self.select_window.is_checked_option(i) == False, f"Option {i} is checked, should be {False}"
+        assert self.name_window.read_text() == "", f"Name window should be empty"
+        assert self.surname_window.read_text() == "", f"Surname window should be empty"
+        assert self.filter_window.read_text() == "", f"Filter window should be empty"
+
+
 
 class Button():
     def __init__(self, iframe, name: str):
@@ -61,7 +72,7 @@ class Filter_Window():
 class Select_Window():
     def __init__(self, iframe):
         self.select_element = iframe.locator('select')
-        self.options = ['Emil, Hans', 'Mustermann, Max', 'Tisch, Roman']
+        self.options = []
         self.number_options = len(self.options)
         self.selected = None
 
@@ -76,6 +87,10 @@ class Select_Window():
 
     def is_visible_option(self, index):
         return self.select_element.locator('option').nth(index).is_visible()
+    
+    def is_checked_option(self, index):
+        return self.select_element.locator('option').nth(index).is_checked()
+
 
     
 
@@ -88,7 +103,7 @@ def iframe(page: Page):
 
 def test(iframe):
     crud = Crud(iframe)
-    assert crud.select_window.is_visible_option(3) == False
+    
 
 
 
