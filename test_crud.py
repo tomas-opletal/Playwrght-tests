@@ -16,7 +16,8 @@ class Crud:
         self.button_Create = Button(self.iframe, 'Create')
         self.button_Update = Button(self.iframe, 'Update')
         self.button_Delete = Button(self.iframe, 'Delete')
-
+        self.name_window = Label_Window(self.iframe, 'Name')
+        self.surname_window = Label_Window(self.iframe, 'Surname')
 
 class Button():
     def __init__(self, iframe, name: str):
@@ -26,6 +27,15 @@ class Button():
     def click(self):
         iframe.get_by_role('button', name = self.name).click()
 
+class Label_Window():
+    def __init__(self, iframe, text: str):
+        self.iframe = iframe
+        self.name = text + ':'
+    
+    def read_text(self):
+        return iframe.locator('label', has_text = self.name).locator('input')
+
+
 @pytest.fixture(scope="function")
 def iframe(page: Page):
     """Fixture to set up and navigate to the modal example page"""
@@ -34,4 +44,5 @@ def iframe(page: Page):
 
 def test(iframe):
     crud = Crud(iframe)
+    iframe.get_by_label()
     assert 1
