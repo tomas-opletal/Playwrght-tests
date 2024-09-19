@@ -41,16 +41,22 @@ class Crud:
             names_list = [names_list]
         for full_name in names_list:
             number_options_prev = self.select_window.number_options
+            options_prev = self.select_window.options
             surname, name = full_name.split(', ')
             self.name_window.click
             self.name_window.write(name)
-            self.button_create.click()
-            self.name_window.click
+            self.surname_window.click
             self.surname_window.write(surname)
             self.button_create.click()
             self.select_window.read_all_options()
             number_options_current = self.select_window.number_options
-            assert number_options_current == number_options_prev + 1, f"Currently is there {number_options_current}, should be {number_options_prev + 1}"
+            options_current = self.select_window.options
+            if full_name in options_prev:
+                assert options_prev == options_current
+                assert number_options_current == number_options_prev
+            else:
+                assert options_current[number_options_current - 1] == full_name, f"Was added {options_current[number_options_current]}, should be {full_name}"
+                assert number_options_current == number_options_prev + 1, f"Currently is there {number_options_current}, should be {number_options_prev + 1}"
 
     def delete_option_from_select(self, names_list):
         if isinstance(names_list, str):
@@ -80,6 +86,22 @@ class Crud:
         filtered_options_actual = self.select_window.options
         assert filtered_options_target == filtered_options_actual, f"Target filtered options was {filtered_options_target}, actual results is {filtered_options_actual}"
 
+    def update_option_by_name(self, current_full_name, target_full_name):
+        returned_index = self.select_window.find_option_by_name(current_full_name)
+        if isinstance(returned_index, int):
+            number_options_prev = self.select_window.number_options
+            surname, name = target_full_name.split(', ')
+            self.select_window.click_option(returned_index)
+            self.name_window.click()
+            self.name_window.write(name)
+            self.surname_window.click()
+            self.surname_window.write(surname)
+            self.button_update.click()
+            self.select_window.read_all_options()
+            current_name = self.select_window.options[returned_index]
+            number_options_current = self.select_window.number_options
+            assert current_name == target_full_name, f"At the index {returned_index} is name {current_name}, should be {target_full_name}"
+            assert number_options_current == number_options_prev, f"Number of options should be {number_options_prev}, should be {number_options_current}"
     
 
 class Button():
@@ -162,10 +184,15 @@ def test(iframe):
     crud = Crud(iframe)
     #crud.options_labels_propagation_test()
     #iframe.get_by_label('label').get_attribute('')
-    crud.add_option_to_select(names_list[0:3])
+    #crud.add_option_to_select(names_list[0:3])
     #crud.options_labels_propagation_test()
     #crud.delete_option_from_select('AD, da')
-    crud.filter_options_by_name(names_list[0][0])
+    #crud.filter_options_by_name(names_list[0][0])
+    #crud.options_labels_propagation_test()
+    #crud.select_window.options
+    #crud.update_option_by_name(crud.select_window.options[0], names_list[1])
+    #crud.options_labels_propagation_test()
+    crud.add_option_to_select(['Emil, Hans', names_list[1]])
     crud.options_labels_propagation_test()
     
 
