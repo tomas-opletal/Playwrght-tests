@@ -7,14 +7,7 @@ import string, random
 import re
 import pytest
 
-names_list = [
-    {"first_name": "John", "last_name": "Smith"},
-    {"first_name": "Emma", "last_name": "Johnson"},
-    {"first_name": "Michael", "last_name": "Brown"},
-    {"first_name": "Olivia", "last_name": "Williams"},
-    {"first_name": "David", "last_name": "Jones"},
-]
-
+names_list = ['Smith, John', 'Johnson, Emma', 'Brown, Michael', 'Williams, Olivia', 'Jones, David']
 
 class Crud:
     def __init__(self, iframe):
@@ -44,16 +37,40 @@ class Crud:
             assert self.surname_window.read_text() + ", " + self.name_window.read_text() == self.select_window.options[i]
 
     def add_option_to_select(self, names_list):
-        for name in names_list:
-            self.name_window.click
-            self.name_window.write(name['first_name'])
-            self.button_create.click()
-            self.name_window.click
-            self.surname_window.write(name['last_name'])
-            self.button_create.click()
-
-
+        if isinstance(names_list, str):
+            names_list = [names_list]
         
+        for full_name in names_list:
+            number_options_prev = self.select_window.number_options
+            surname, name = full_name.split(', ')
+            self.name_window.click
+            self.name_window.write(name)
+            self.button_create.click()
+            self.name_window.click
+            self.surname_window.write(surname)
+            self.button_create.click()
+            self.select_window.read_all_options()
+            number_options_current = self.select_window.number_options
+            assert number_options_current == number_options_prev + 1, f"Currently is there {number_options_current}, should be {number_options_prev + 1}"
+
+    def delete_option_from_select(self, names_list):
+        if isinstance(names_list, str):
+            names_list = [names_list]
+        for full_name in names_list:
+            returned_index = self.select_window.find_option_by_name(full_name)
+            number_options_prev = self.select_window.number_options
+            if isinstance(returned_index, int):
+                self.select_window.click_option(returned_index)
+                self.button_delete.click()
+                self.select_window.read_all_options()
+                number_options_current = self.select_window.number_options
+                assert self.name_window.read_text() == ''
+                assert self.surname_window.read_text() == ''
+                assert number_options_prev - 1 == number_options_current, f"Currently is there {number_options_current}, should be {number_options_prev - 1}"
+            else:
+                number_options_current = self.select_window.number_options
+                assert number_options_prev == number_options_current, f"Some option was removes even though it shouldnt"
+                continue
 
 class Button():
     def __init__(self, iframe, name: str):
@@ -114,9 +131,15 @@ class Select_Window():
     def is_enabled_option(self, index):
         # return self.select_element.locator('option').nth(index).input_value()
         return self.select_element.input_value()
-
-
     
+    def find_option_by_name(self, name):
+        self.read_all_options()
+        for i, item in enumerate(self.options):
+            if (name == item):
+                return i
+        return None
+
+
 
 
 @pytest.fixture(scope="function")
@@ -129,8 +152,11 @@ def test(iframe):
     crud = Crud(iframe)
     #crud.options_labels_propagation_test()
     #iframe.get_by_label('label').get_attribute('')
-    crud.add_option_to_select(names_list)
+    crud.add_option_to_select(names_list[0:3])
+    #crud.options_labels_propagation_test()
+    crud.delete_option_from_select('AD, da')
     crud.options_labels_propagation_test()
+    
 
 
 
