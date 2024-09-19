@@ -7,7 +7,7 @@ import string, random
 import re
 import pytest
 
-names_list = ['Smith, John', 'Johnson, Emma', 'Brown, Michael', 'Williams, Olivia', 'Jones, David']
+names_list = ['Smith, John', 'Sevok, Emma', 'Brown, Michael', 'Williams, Olivia', 'Jones, David']
 
 class Crud:
     def __init__(self, iframe):
@@ -39,7 +39,6 @@ class Crud:
     def add_option_to_select(self, names_list):
         if isinstance(names_list, str):
             names_list = [names_list]
-        
         for full_name in names_list:
             number_options_prev = self.select_window.number_options
             surname, name = full_name.split(', ')
@@ -71,6 +70,17 @@ class Crud:
                 number_options_current = self.select_window.number_options
                 assert number_options_prev == number_options_current, f"Some option was removes even though it shouldnt"
                 continue
+
+    def filter_options_by_name(self, filter: str):
+        self.select_window.read_all_options()
+        filtered_options_target = [name for name in self.select_window.options if name.startswith(filter)]
+        self.filter_window.click()
+        self.filter_window.write_text(filter)
+        self.select_window.read_all_options()
+        filtered_options_actual = self.select_window.options
+        assert filtered_options_target == filtered_options_actual, f"Target filtered options was {filtered_options_target}, actual results is {filtered_options_actual}"
+
+    
 
 class Button():
     def __init__(self, iframe, name: str):
@@ -154,7 +164,8 @@ def test(iframe):
     #iframe.get_by_label('label').get_attribute('')
     crud.add_option_to_select(names_list[0:3])
     #crud.options_labels_propagation_test()
-    crud.delete_option_from_select('AD, da')
+    #crud.delete_option_from_select('AD, da')
+    crud.filter_options_by_name(names_list[0][0])
     crud.options_labels_propagation_test()
     
 
