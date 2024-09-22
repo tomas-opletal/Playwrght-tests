@@ -5,7 +5,7 @@ https://vuejs.org/examples/#form-bindings
 https://vuejs.org/examples/#modal
 https://vuejs.org/examples/#crud
 
-It is divided into three python files, where each file is testing one of the pages. 
+It is divided into three python files, where each file is testing one of the pages. These test files are saved at the folder src.
 For testing is used pytest and playwright. 
 For starting the tests of scripts can be used:
 pytest
