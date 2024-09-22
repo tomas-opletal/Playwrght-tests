@@ -200,26 +200,38 @@ class Select_Window():
         return None
 
 @pytest.fixture(scope="function")
-def iframe(page: Page):
+def crud(page: Page):
     """Fixture to set up and navigate to the modal example page"""
     page.goto("https://vuejs.org/examples/#crud")
-    return page.frame_locator("iframe")
-
-def test(iframe):
+    page.wait_for_selector("iframe")
+    iframe = page.frame_locator("iframe")
     crud = Crud(iframe)
-    #crud.options_labels_propagation_test()
-    #iframe.get_by_label('label').get_attribute('')
-    #crud.add_option_to_select(names_list[0:3])
-    #crud.options_labels_propagation_test()
-    #crud.delete_option_from_select('AD, da')
-    #crud.filter_options_by_name(names_list[0][0])
-    #crud.options_labels_propagation_test()
-    #crud.select_window.options
-    #crud.update_option_by_name(crud.select_window.options[0], names_list[1])
-    #crud.options_labels_propagation_test()
-    crud.add_option_to_select(['Emil, Hans', names_list[1]])
+    return crud
+
+def test_default(crud):
+    crud.check_default_setting()
+
+def test_add_options_to_select(crud):
+    crud.add_option_to_select(names_list[2:4])
+    crud.add_option_to_select(names_list[2:4])
+
+def test_options_labels_propagation(crud):
     crud.options_labels_propagation_test()
-    
+
+def test_delete_option_from_select(crud):
+    crud.add_option_to_select(names_list[0:2])
+    crud.delete_option_from_select([names_list[1:3]])
+
+def test_filter_options_by_name(crud):
+    crud.add_option_to_select(names_list)
+    crud.filter_options_by_name("S")
+
+def test_update_options_by_name(crud):
+    crud.update_option_by_name(crud.select_window.options[0], names_list[1])
+    crud.update_option_by_name(crud.select_window.options[1], names_list[2])
+
+
+
 
 
 
