@@ -26,8 +26,6 @@ class Crud:
     def check_default_setting(self):
         """Method used for checking default settings of the CRUD"""
         assert self.select_window.read_all_options() == ['Emil, Hans', 'Mustermann, Max', 'Tisch, Roman']
-        #for i in range(self.select_window.number_options):   ## Checking if target options are checked, TO DO
-        #    assert self.select_window.is_enabled_option(i) == False, f"Option {i} is enabled, should be {False}"
         assert self.name_window.read_text() == "", f"Name window should be empty"
         assert self.surname_window.read_text() == "", f"Surname window should be empty"
         assert self.filter_window.read_text() == "", f"Filter window should be empty"
@@ -37,7 +35,6 @@ class Crud:
         self.select_window.read_all_options()
         for i in range(self.select_window.number_options):
             self.select_window.click_option(i)
-      #     assert self.select_window.is_checked_option(i) == True   ## Checking if target options are checked, TO DO
             assert self.surname_window.read_text() + ", " + self.name_window.read_text() == self.select_window.options[i]
 
     def add_option_to_select(self, names_list):
@@ -173,6 +170,7 @@ class Select_Window():
 
     def read_all_options(self):
         """Method, which will read all current options and saves them to member variable"""
+        self.select_element.locator('option').first.wait_for(state="visible")
         self.options = self.select_element.locator('option').all_inner_texts()
         self.number_options = len(self.options)
         return self.options
@@ -181,15 +179,6 @@ class Select_Window():
         """Method used for clicking some concrete option by index"""
         self.select_element.locator('option').nth(index).click()
         self.selected = index
-
-    def is_visible_option(self, index):
-        """Method which is checking if option is visible"""
-        return self.select_element.locator('option').nth(index).is_visible()
-    
-    def is_enabled_option(self, index):
-        """Method used for checking if option is enabled"""
-        # return self.select_element.locator('option').nth(index).input_value()
-        return self.select_element.input_value()
     
     def find_option_by_name(self, name):
         """Method used for finding option by name """
